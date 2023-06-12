@@ -1,8 +1,14 @@
 [package]
 name = "howl"
-version = "0.1.0"
+version = "0.0.1"
 edition = "2021"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+authors = ["Zonda Yang <u226699@gmail.com>"]
+description = "Easy for use process watchdog"
+homepage = "https://github.com/zondatw/howl"
+repository = "https://github.com/zondatw/howl"
+keywords = ["watchdog"]
+license = "MIT"
+readme = "README.md"
 
 [dependencies]
+clap = { version = "4.0.26", features = ["derive"] }
