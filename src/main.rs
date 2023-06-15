@@ -31,6 +31,16 @@ async fn send_ctrl_c(child: &mut tokio::process::Child) {
     }
 }
 
+fn keep_running_command(command: String, args: Vec<&str>) -> tokio::process::Child {
+    // Spawn sub-process
+    let child = Command::new(command)
+        .args(args)
+        .spawn()
+        .expect("Failed to spawn child process.");
+
+    child
+}
+
 #[tokio::main]
 async fn main() {
     let args = Args::new();
@@ -39,14 +49,10 @@ async fn main() {
 
     // Example command and arguments
     let split_execute: Vec<&str> = args.execute.split(' ').collect();
-    let exec_command = split_execute[0];
+    let exec_command = split_execute[0].to_string();
     let exec_args = &split_execute[1..];
 
-    // Spawn sub-process
-    let mut child = Command::new(exec_command)
-        .args(exec_args)
-        .spawn()
-        .expect("Failed to spawn child process.");
+    let mut child = keep_running_command(exec_command, exec_args.to_vec());
 
     // Send Ctrl+C signal
     send_ctrl_c(&mut child).await;
