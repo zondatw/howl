@@ -9,7 +9,13 @@ use std::time::Duration;
 use tokio::process::Command;
 use tokio::signal::unix::{signal, SignalKind};
 
-async fn send_ctrl_c(child: &mut tokio::process::Child) {
+#[derive(PartialEq)]
+enum ChildKillResult {
+    Timeout,
+    Manual,
+}
+
+async fn send_ctrl_c(child: &mut tokio::process::Child) -> ChildKillResult {
     let timeout_duration = Duration::from_secs(5);
 
     let ctrl_c_signal =
@@ -21,12 +27,13 @@ async fn send_ctrl_c(child: &mut tokio::process::Child) {
             // Timeout reached
             println!("Timeout reached. Sending SIGTERM to the child process.");
             signal::kill(Pid::from_raw(child.id().unwrap().try_into().unwrap()), Signal::SIGINT).unwrap();
-
+            ChildKillResult::Timeout
         }
         _ = ctrl_c_signal.recv() => {
             // Ctrl+C signal received
             println!("Ctrl+C signal received. Sending SIGINT to the child process.");
             signal::kill(Pid::from_raw(child.id().unwrap().try_into().unwrap()), Signal::SIGINT).unwrap();
+            ChildKillResult::Manual
         }
     }
 }
@@ -49,22 +56,27 @@ async fn main() {
 
     // Example command and arguments
     let split_execute: Vec<&str> = args.execute.split(' ').collect();
-    let exec_command = split_execute[0].to_string();
+    let exec_command = split_execute[0];
     let exec_args = &split_execute[1..];
 
-    let mut child = keep_running_command(exec_command, exec_args.to_vec());
+    loop {
+        let mut child = keep_running_command(exec_command.to_string(), exec_args.to_vec());
 
-    // Send Ctrl+C signal
-    send_ctrl_c(&mut child).await;
+        let res = send_ctrl_c(&mut child).await;
 
-    // Wait for the child process to finish
-    let status = child
-        .wait()
-        .await
-        .expect("Failed to wait for child process.");
+        // Wait for the child process to finish
+        let status = child
+            .wait()
+            .await
+            .expect("Failed to wait for child process.");
 
-    if !status.success() {
-        println!("Child process exited with an error.");
-        exit(1);
+        if !status.success() {
+            println!("Child process exited with an error.");
+            exit(1);
+        }
+
+        if res == ChildKillResult::Manual {
+            break;
+        }
     }
 }
