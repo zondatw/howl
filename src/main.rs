@@ -2,6 +2,8 @@ mod cli;
 
 use crate::cli::Args;
 
+use nix::sys::signal::{self, Signal};
+use nix::unistd::Pid;
 use std::process::exit;
 use std::time::Duration;
 use tokio::process::Command;
@@ -18,12 +20,13 @@ async fn send_ctrl_c(child: &mut tokio::process::Child) {
         _ = tokio::time::sleep(timeout_duration) => {
             // Timeout reached
             println!("Timeout reached. Sending SIGTERM to the child process.");
-            child.kill().await.expect("Failed to send SIGTERM to the child process.");
+            signal::kill(Pid::from_raw(child.id().unwrap().try_into().unwrap()), Signal::SIGINT).unwrap();
+
         }
         _ = ctrl_c_signal.recv() => {
             // Ctrl+C signal received
             println!("Ctrl+C signal received. Sending SIGINT to the child process.");
-            child.kill().await.expect("Failed to send SIGINT to the child process.");
+            signal::kill(Pid::from_raw(child.id().unwrap().try_into().unwrap()), Signal::SIGINT).unwrap();
         }
     }
 }
