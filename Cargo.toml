@@ -14,3 +14,5 @@ readme = "README.md"
 clap = { version = "4.0.26", features = ["derive"] }
 tokio = { version = "1", features = ["full"] }
 nix = "0.26.2"
+notify = "6.0.1"
+futures = "0.3"
