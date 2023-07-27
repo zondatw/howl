@@ -112,6 +112,7 @@ async fn main() {
     let args = Args::new();
 
     println!("Execute command: {:?}", args.execute);
+    println!("Monitor path: {:?}", args.path);
 
     // Example command and arguments
     let split_execute: Vec<&str> = args.execute.split(' ').collect();
@@ -121,7 +122,7 @@ async fn main() {
     let mut child_container: Option<tokio::process::Child>;
 
     spawn(async move {
-        if let Err(e) = async_watch("./src").await {
+        if let Err(e) = async_watch(args.path.as_path()).await {
             println!("error: {:?}", e)
         }
     });
