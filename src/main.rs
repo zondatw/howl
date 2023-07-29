@@ -9,6 +9,7 @@ use futures::{
 };
 use nix::sys::signal::{self, Signal};
 use nix::unistd::Pid;
+use notify::event::EventKind;
 use notify::{Config, Event, RecommendedWatcher, RecursiveMode, Watcher};
 use std::path::Path;
 use std::process::exit;
@@ -90,11 +91,19 @@ async fn async_watch<P: AsRef<Path>>(path: P) -> notify::Result<()> {
     while let Some(res) = rx.next().await {
         match res {
             Ok(event) => {
-                println!("changed: {:?}", event);
+                println!("changed: {:?}", event.kind);
+                let need_execute: bool = match event.kind {
+                    EventKind::Access(_) => false,
+                    EventKind::Create(_) => true,
+                    EventKind::Modify(_) => true,
+                    EventKind::Remove(_) => true,
+                    EventKind::Any => false,
+                    EventKind::Other => false,
+                };
 
                 let child_id: i32 = get_child_id();
-                println!("changed to get child_id: {}", child_id);
-                if child_id > 0 {
+                // println!("changed to get child_id: {} && need_execute: {:?}", child_id, need_execute);
+                if need_execute && child_id > 0 {
                     println!("Send SIGINT to get child_id: {}", child_id);
                     signal::kill(Pid::from_raw(child_id), Signal::SIGINT).unwrap();
                     init_child_id()
