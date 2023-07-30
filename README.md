@@ -15,11 +15,13 @@ Arguments:
   <EXECUTE>
 
 Options:
-  -p <PATH>      [default: .]
-  -h, --help     Print help
-  -V, --version  Print version
+  -e <FILE_EVENT>      [default: modify] [possible values: access, create, modify, remove, any]
+  -p <PATH>            [default: .]
+  -h, --help           Print help
+  -V, --version        Print version
+
 ```
 
 ```shell
-howl -p "./src" "python tools/get_signal.py"
+howl -e any -p "./src" "python tools/get_signal.py"
 ```

@@ -1,4 +1,5 @@
 mod cli;
+mod contents;
 
 use crate::cli::Args;
 
@@ -9,13 +10,14 @@ use futures::{
 };
 use nix::sys::signal::{self, Signal};
 use nix::unistd::Pid;
-use notify::event::EventKind;
 use notify::{Config, Event, RecommendedWatcher, RecursiveMode, Watcher};
 use std::path::Path;
 use std::process::exit;
 use tokio::process::Command;
 // use tokio::signal::unix::{signal, SignalKind};
 use tokio::spawn;
+
+use crate::contents::enums;
 
 // #[derive(PartialEq)]
 // enum ChildKillResult {
@@ -81,7 +83,7 @@ fn async_watcher() -> notify::Result<(RecommendedWatcher, Receiver<notify::Resul
     Ok((watcher, rx))
 }
 
-async fn async_watch<P: AsRef<Path>>(path: P) -> notify::Result<()> {
+async fn async_watch<P: AsRef<Path>>(path: P, file_event: enums::FileEvent) -> notify::Result<()> {
     let (mut watcher, mut rx) = async_watcher()?;
 
     // Add a path to be watched. All files and directories at that path and
@@ -91,15 +93,13 @@ async fn async_watch<P: AsRef<Path>>(path: P) -> notify::Result<()> {
     while let Some(res) = rx.next().await {
         match res {
             Ok(event) => {
-                println!("changed: {:?}", event.kind);
-                let need_execute: bool = match event.kind {
-                    EventKind::Access(_) => false,
-                    EventKind::Create(_) => true,
-                    EventKind::Modify(_) => true,
-                    EventKind::Remove(_) => true,
-                    EventKind::Any => false,
-                    EventKind::Other => false,
-                };
+                println!("changed: {:?}, monitor: {:?}", event.kind, file_event);
+
+                let need_execute: bool = file_event == enums::FileEvent::Any
+                    || (event.kind.is_access() && file_event == enums::FileEvent::Access)
+                    || (event.kind.is_create() && file_event == enums::FileEvent::Create)
+                    || (event.kind.is_modify() && file_event == enums::FileEvent::Modify)
+                    || (event.kind.is_modify() && file_event == enums::FileEvent::Modify);
 
                 let child_id: i32 = get_child_id();
                 // println!("changed to get child_id: {} && need_execute: {:?}", child_id, need_execute);
@@ -131,7 +131,7 @@ async fn main() {
     let mut child_container: Option<tokio::process::Child>;
 
     spawn(async move {
-        if let Err(e) = async_watch(args.path.as_path()).await {
+        if let Err(e) = async_watch(args.path.as_path(), args.file_event).await {
             println!("error: {:?}", e)
         }
     });
