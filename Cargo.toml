@@ -1,6 +1,6 @@
 [package]
 name = "howl"
-version = "0.0.1"
+version = "0.0.2"
 edition = "2021"
 authors = ["Zonda Yang <u226699@gmail.com>"]
 description = "Easy for use process watchdog"
