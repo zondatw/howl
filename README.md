@@ -4,6 +4,8 @@
 
 Easy for use process watchdog
 
+![demo](./picture/demo.png)
+
 ## Usage
 
 ```shell
