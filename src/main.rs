@@ -3,6 +3,7 @@ mod contents;
 
 use crate::cli::Args;
 
+use colored::Colorize;
 use core::sync::atomic::{AtomicI32, Ordering};
 use futures::{
     channel::mpsc::{channel, Receiver},
@@ -94,7 +95,14 @@ async fn async_watch<P: AsRef<Path>>(path: P, file_event: enums::FileEvent) -> n
     while let Some(res) = rx.next().await {
         match res {
             Ok(event) => {
-                println!("changed: {:?}, monitor: {:?}", event.kind, file_event);
+                println!(
+                    "{} {}{:?}, {}{:?}",
+                    "[howl]".bright_magenta().bold(),
+                    "changed: ".yellow(),
+                    event.kind,
+                    "monitor: ".yellow(),
+                    file_event
+                );
 
                 let need_execute: bool = file_event == enums::FileEvent::Any
                     || (event.kind.is_access() && file_event == enums::FileEvent::Access)
@@ -105,7 +113,12 @@ async fn async_watch<P: AsRef<Path>>(path: P, file_event: enums::FileEvent) -> n
                 let child_id: i32 = get_child_id();
                 // println!("changed to get child_id: {} && need_execute: {:?}", child_id, need_execute);
                 if need_execute && child_id > 0 {
-                    println!("Send SIGINT to get child_id: {}", child_id);
+                    println!(
+                        "{} {}{}",
+                        "[howl]".bright_magenta().bold(),
+                        "Send SIGINT to get child_id: ".bright_blue(),
+                        child_id
+                    );
                     signal::kill(Pid::from_raw(child_id), Signal::SIGINT).unwrap();
                     init_child_id()
                 }
@@ -121,8 +134,18 @@ async fn async_watch<P: AsRef<Path>>(path: P, file_event: enums::FileEvent) -> n
 async fn main() {
     let args = Args::new();
 
-    println!("Execute command: {:?}", args.execute);
-    println!("Monitor path: {:?}", args.path);
+    println!(
+        "{} {}{:?}",
+        "[howl]".bright_magenta().bold(),
+        "Execute command: ".blue(),
+        args.execute
+    );
+    println!(
+        "{} {}{:?}",
+        "[howl]".bright_magenta().bold(),
+        "Monitor path: ".blue(),
+        args.path
+    );
 
     // Example command and arguments
     let split_execute: Vec<&str> = args.execute.split(' ').collect();
@@ -133,11 +156,16 @@ async fn main() {
 
     spawn(async move {
         if let Err(e) = async_watch(args.path.as_path(), args.file_event).await {
-            println!("error: {:?}", e)
+            println!("{}{:?}", "error: ".red(), e)
         }
     });
 
     loop {
+        println!(
+            "{} {}",
+            "[howl]".bright_magenta().bold(),
+            "----- execute -----".green()
+        );
         init_child_id();
         child_container = keep_running_command(exec_command.to_string(), exec_args.to_vec());
 
@@ -154,7 +182,11 @@ async fn main() {
             .expect("Failed to wait for child process.");
 
         if !status.success() {
-            println!("Child process exited with an error.");
+            println!(
+                "{} {}",
+                "[howl]".bright_magenta().bold(),
+                "Child process exited with an error.".red()
+            );
             exit(1);
         }
         thread::sleep(Duration::from_millis(100));
