@@ -2,14 +2,14 @@
 
 ## Introduce
 
-Easy for use process watchdog
+Easy to use live-reload watchdog
 
 ![demo](./picture/demo.png)
 
 ## Usage
 
 ```shell
-Easy for use process watchdog
+Easy to use process watchdog
 
 Usage: howl [OPTIONS] <EXECUTE>
 
