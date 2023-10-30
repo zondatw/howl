@@ -2,11 +2,11 @@
 import signal
 import sys
 
-fd = open("./xxx.log", "w+")
+fd = open("./xxx.log", "a+")
 
 def signal_handler(signum, frame):
     print("Signal Number:", signum, " Frame: ", frame)
-    fd.write(f"Signal Number: {signum}, Frame: {frame}")
+    fd.write(f"Signal Number: {signum}, Frame: {frame}\n")
     fd.close()
 
 valid_signals = signal.valid_signals()
