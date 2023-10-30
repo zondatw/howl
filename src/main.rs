@@ -13,6 +13,7 @@ use nix::unistd::Pid;
 use notify::{Config, Event, RecommendedWatcher, RecursiveMode, Watcher};
 use std::path::Path;
 use std::process::exit;
+use std::{thread, time::Duration};
 use tokio::process::Command;
 // use tokio::signal::unix::{signal, SignalKind};
 use tokio::spawn;
@@ -156,11 +157,6 @@ async fn main() {
             println!("Child process exited with an error.");
             exit(1);
         }
-        // let res = send_ctrl_c().await;
-
-        // if res == ChildKillResult::Manual {
-        //     println!("Child process exited by manual.");
-        //     break;
-        // }
+        thread::sleep(Duration::from_millis(100));
     }
 }
