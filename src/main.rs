@@ -98,7 +98,7 @@ async fn async_watch<P: AsRef<Path>>(path: P, file_event: enums::FileEvent) -> n
                 println!(
                     "{} {}{:?}, {}{:?}",
                     "[howl]".bright_magenta().bold(),
-                    "changed: ".yellow(),
+                    "Got event: ".yellow(),
                     event.kind,
                     "monitor: ".yellow(),
                     file_event
@@ -116,7 +116,7 @@ async fn async_watch<P: AsRef<Path>>(path: P, file_event: enums::FileEvent) -> n
                     println!(
                         "{} {}{}",
                         "[howl]".bright_magenta().bold(),
-                        "Send SIGINT to get child_id: ".bright_blue(),
+                        "Send SIGINT to child: ".bright_blue(),
                         child_id
                     );
                     signal::kill(Pid::from_raw(child_id), Signal::SIGINT).unwrap();
