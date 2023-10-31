@@ -1,6 +1,6 @@
 [package]
 name = "howl"
-version = "0.1.1"
+version = "0.1.2"
 edition = "2021"
 authors = ["Zonda Yang <u226699@gmail.com>"]
 description = "Easy to use live-reload watchdog"
