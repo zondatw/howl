@@ -20,6 +20,7 @@ pub struct Args {
     pub path: path::PathBuf,
 
     // signal, ref: https://man7.org/linux/man-pages/man7/signal.7.html
+    // signal doc: https://docs.rs/nix/latest/nix/sys/signal/enum.Signal.html#variants
     #[arg(short = 's', default_value_t = Signal::SIGINT)]
     pub signal: Signal,
 }
