@@ -85,7 +85,11 @@ fn async_watcher() -> notify::Result<(RecommendedWatcher, Receiver<notify::Resul
     Ok((watcher, rx))
 }
 
-async fn async_watch<P: AsRef<Path>>(path: P, file_event: enums::FileEvent) -> notify::Result<()> {
+async fn async_watch<P: AsRef<Path>>(
+    path: P,
+    file_event: enums::FileEvent,
+    signal: Signal,
+) -> notify::Result<()> {
     let (mut watcher, mut rx) = async_watcher()?;
 
     // Add a path to be watched. All files and directories at that path and
@@ -116,10 +120,10 @@ async fn async_watch<P: AsRef<Path>>(path: P, file_event: enums::FileEvent) -> n
                     println!(
                         "{} {}{}",
                         "[howl]".bright_magenta().bold(),
-                        "Send SIGINT to child: ".bright_blue(),
+                        "Send signal to child: ".bright_blue(),
                         child_id
                     );
-                    signal::kill(Pid::from_raw(child_id), Signal::SIGINT).unwrap();
+                    signal::kill(Pid::from_raw(child_id), signal).unwrap();
                     init_child_id()
                 }
             }
@@ -165,7 +169,7 @@ async fn main() {
     let mut child_container: Option<tokio::process::Child>;
 
     spawn(async move {
-        if let Err(e) = async_watch(args.path.as_path(), args.file_event).await {
+        if let Err(e) = async_watch(args.path.as_path(), args.file_event, args.signal).await {
             println!("{}{:?}", "error: ".red(), e)
         }
     });

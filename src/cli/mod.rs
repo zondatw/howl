@@ -1,6 +1,8 @@
 use clap::Parser;
 use std::path;
 
+use nix::sys::signal::Signal;
+
 use crate::contents::enums;
 
 #[derive(Parser)]
@@ -16,6 +18,10 @@ pub struct Args {
     // file / directory output path
     #[arg(short, default_value = ".")]
     pub path: path::PathBuf,
+
+    // signal, ref: https://man7.org/linux/man-pages/man7/signal.7.html
+    #[arg(short = 's', default_value_t = Signal::SIGINT)]
+    pub signal: Signal,
 }
 
 impl Args {
