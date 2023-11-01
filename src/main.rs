@@ -23,7 +23,7 @@ use crate::contents::enums;
 static CHILD_ID: AtomicI32 = AtomicI32::new(0);
 
 pub fn set_child_id(val: i32) {
-    CHILD_ID.store(val, Ordering::Relaxed)
+    CHILD_ID.store(val, Ordering::SeqCst)
 }
 
 pub fn init_child_id() {
@@ -31,7 +31,7 @@ pub fn init_child_id() {
 }
 
 pub fn get_child_id() -> i32 {
-    CHILD_ID.load(Ordering::Relaxed)
+    CHILD_ID.load(Ordering::SeqCst)
 }
 
 fn keep_running_command(command: String, args: Vec<&str>) -> Option<tokio::process::Child> {
