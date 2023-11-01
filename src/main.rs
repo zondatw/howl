@@ -84,15 +84,14 @@ async fn async_watch<P: AsRef<Path>>(
                     file_event
                 );
 
-                let need_execute: bool = file_event == enums::FileEvent::Any
+                let need_send_signal: bool = file_event == enums::FileEvent::Any
                     || (event.kind.is_access() && file_event == enums::FileEvent::Access)
                     || (event.kind.is_create() && file_event == enums::FileEvent::Create)
                     || (event.kind.is_modify() && file_event == enums::FileEvent::Modify)
                     || (event.kind.is_remove() && file_event == enums::FileEvent::Remove);
 
                 let child_id: i32 = get_child_id();
-                // println!("changed to get child_id: {} && need_execute: {:?}", child_id, need_execute);
-                if need_execute && child_id > 0 {
+                if need_send_signal && child_id > 0 {
                     println!(
                         "{} {}{}",
                         "[howl]".bright_magenta().bold(),
