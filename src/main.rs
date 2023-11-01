@@ -16,15 +16,9 @@ use std::path::Path;
 use std::process::exit;
 use std::{thread, time::Duration};
 use tokio::process::Command;
-// use tokio::signal::unix::{signal, SignalKind};
 use tokio::spawn;
 
 use crate::contents::enums;
-
-// #[derive(PartialEq)]
-// enum ChildKillResult {
-//     Manual,
-// }
 
 static CHILD_ID: AtomicI32 = AtomicI32::new(0);
 
@@ -39,24 +33,6 @@ pub fn init_child_id() {
 pub fn get_child_id() -> i32 {
     CHILD_ID.load(Ordering::Relaxed)
 }
-
-// async fn send_ctrl_c() -> ChildKillResult {
-//     let ctrl_c_signal =
-//         signal(SignalKind::interrupt()).expect("Failed to register Ctrl+C handler.");
-//     tokio::pin!(ctrl_c_signal);
-
-//     tokio::select! {
-//         _ = ctrl_c_signal.recv() => {
-//             // Ctrl+C signal received
-//             println!("Ctrl+C signal received. Sending SIGINT to the child process.");
-//             let child_id: i32 = get_child_id();
-//             if child_id > 0 {
-//                 signal::kill(Pid::from_raw(child_id), Signal::SIGINT).unwrap();
-//             }
-//             ChildKillResult::Manual
-//         }
-//     }
-// }
 
 fn keep_running_command(command: String, args: Vec<&str>) -> Option<tokio::process::Child> {
     // Spawn sub-process
