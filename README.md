@@ -9,7 +9,7 @@ Easy to use live-reload watchdog
 ## Usage
 
 ```shell
-Easy to use process watchdog
+Easy to use live-reload watchdog
 
 Usage: howl [OPTIONS] <EXECUTE>
 
@@ -19,6 +19,7 @@ Arguments:
 Options:
   -e <FILE_EVENT>      [default: modify] [possible values: access, create, modify, remove, any]
   -p <PATH>            [default: .]
+  -s <SIGNAL>          [default: SIGINT]
   -h, --help           Print help
   -V, --version        Print version
 
