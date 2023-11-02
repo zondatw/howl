@@ -26,5 +26,5 @@ Options:
 ```
 
 ```shell
-howl -e any -p "./src" "python tools/get_signal.py"
+howl -e any -p "./src" -s SIGTERM "python tools/get_signal.py"
 ```
